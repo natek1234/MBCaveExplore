@@ -1,0 +1,34 @@
+# This file defines the configuration for the Markov Brain and simulation environment
+
+## Markov Brain Configuration ##
+
+num_inputs: 2
+num_outputs: 4
+num_hidden: 4
+
+# By default, all gate types are used. Can modify the gates list to include specific gates only or use
+# the det_gates, prob_gates, and special_gates options for specific groups of gates.
+
+# All gate types: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+all_gates: True
+gate_types: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+
+# If all_gates is False, which gates are used?
+
+# det_gates: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+det_gates: False
+det_gate_types: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+
+# prob_gates: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+prob_gates: False
+prob_gate_types: ['AND', 'OR', 'XOR', 'NAND', 'NOT', 'NOR', 'XNOR']
+
+# special_gates: []
+special_gates: False
+special_gate_types: []
+
+## Simulation Configuration ##
+
+swarm_size: 10 # number of MB agents
+time_steps: 1000 # number of time steps to finish one simulation round
+evolution_steps: 100 # number of evolution steps to take
