@@ -32,3 +32,10 @@ special_gate_types: []
 swarm_size: 10 # number of MB agents
 time_steps: 1000 # number of time steps to finish one simulation round
 evolution_steps: 100 # number of evolution steps to take
+
+# Cave locations by map
+caves_map1: [[20, 20], [500, 800], [1000, 100]]
+
+# Map file locations
+maps:
+  - './map_test.txt'
