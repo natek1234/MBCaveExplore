@@ -1,6 +1,7 @@
 import yaml
 import numpy as np
 from MarkovBrain import MarkovBrain
+import matplotlib.pyplot as plt
 
 VISUALIZE = False # Visualization option to be implemented
 
@@ -36,6 +37,18 @@ if __name__ == '__main__':
     cave_map = np.loadtxt(params['maps'][0])
     print(cave_map)
 
+    ## GENERATE FIRST GENERATION ##
+
+    agents = []
+    # Initialize first Markov Brains
+    for agent in range(0, params['swarm_size']):
+        agents = agents + [MarkovBrain(params['num_inputs'], params['num_outputs'], params['num_hidden'], params['num_gates'], params['gate_types'])]
+
+    print(agents[0].ids)
+    for i in range(0, agents[0].num_gates):
+        print(agents[0].gates[i].gate_type)
+        print(agents[0].gates[i].gate_name)
+        print(agents[0].gates[i].id)
 
     ## EVOLUTION PROCESS ## 
     for evo_step in range(0, params['evolution_steps']):

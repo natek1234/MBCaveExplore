@@ -5,6 +5,7 @@
 num_inputs: 2
 num_outputs: 4
 num_hidden: 4
+num_gates: 15
 
 # By default, all gate types are used. Can modify the gates list to include specific gates only or use
 # the det_gates, prob_gates, and special_gates options for specific groups of gates.
