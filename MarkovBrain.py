@@ -4,7 +4,7 @@ from Gates import Gates
 class MarkovBrain:
     def __init__(self, num_inputs, num_outputs, num_hidden, num_gates, gates, all_gates = True):
 
-        # Markov Brain structure
+        ## MARKOV BRAIN STRUCTURE ##
         # Input states
         self.inputs = np.zeros(num_inputs) # init inputs to 0
         self.num_inputs = num_inputs
@@ -30,15 +30,16 @@ class MarkovBrain:
         # Randomly initialize gates to probabilistic, deterministic, or special
         gate_type = np.random.choice(['probabilistic','deterministic'], self.num_gates) # 0 is probabilistic, 1 is deterministic, 2 is special (to be added later)
         for count, gate in enumerate(gate_type):
-            self.gates = self.gates + [Gates(gate, np.random.choice(self.gate_types), self.gate_ids[count])] # Add Gates objects to MB
+            self.gates = self.gates + [Gates(gate, np.random.choice(self.gate_types), self.gate_ids[count], num_inputs+num_hidden, self.input_ids, self.output_ids, self.hidden_ids)] # Add Gates objects to MB
             # Need to add separate logic for special gates
 
         self.ids = self.input_ids + self.output_ids + self.hidden_ids + self.gate_ids # by definition, make the first x number of IDs for the inputs, outputs, hidden states, and gates
 
-        # Setup connections between gates and nodes
-
+        ## SIMULATION PROPERTIES ##
         # Fitness
         self.fitness = 0 # starts at neutral point
+        # Location
+        self.location = None
     
     # Perform brain update, including fitness update
     def brain_update(self):

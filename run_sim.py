@@ -49,6 +49,9 @@ if __name__ == '__main__':
         print(agents[0].gates[i].gate_type)
         print(agents[0].gates[i].gate_name)
         print(agents[0].gates[i].id)
+        print(agents[0].gates[i].num_inputs)
+        if agents[0].gates[i].gate_type == 'probabilistic':
+            print(agents[0].gates[i].truth_table)
 
     ## EVOLUTION PROCESS ## 
     for evo_step in range(0, params['evolution_steps']):
