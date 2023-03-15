@@ -35,7 +35,6 @@ if __name__ == '__main__':
 
     # Create map
     cave_map = np.loadtxt(params['maps'][0])
-    print(cave_map)
 
     ## GENERATE FIRST GENERATION ##
 
@@ -50,8 +49,8 @@ if __name__ == '__main__':
         print(agents[0].gates[i].gate_name)
         print(agents[0].gates[i].id)
         print(agents[0].gates[i].num_inputs)
-        if agents[0].gates[i].gate_type == 'probabilistic':
-            print(agents[0].gates[i].truth_table)
+        print(agents[0].gates[i].truth_table)
+        print(agents[0].gates[i].output_prob)
 
     ## EVOLUTION PROCESS ## 
     for evo_step in range(0, params['evolution_steps']):

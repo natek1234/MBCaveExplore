@@ -26,15 +26,64 @@ class Gates:
 
         ## PROBABILISTIC GATE SETUP ##
 
+        # Prob gates have higher than 0.5 probability of firing if output is supposed to be 1 and less than 0.5 if it should be 0
+
         # initialize probabilistic gate
         if self.gate_type == 'probabilistic':
             self.input_prob = np.array([]) # unused for now - can implement later
 
             self.truth_table = np.array(list(product([False, True], repeat=self.num_inputs))) # contains all permutations of the inputs
 
+            # Randomly initialize probabilities
+            probs_high = np.random.uniform(0.5, 1, self.truth_table.shape[0])
+            probs_low = np.random.uniform(0, 0.5, self.truth_table.shape[0])
+
             # Need to initialize these based on specific gates
-            ## DO NEXT ##
-            self.output_prob = np.array([]) # contains all the output probabilities, ordered according to the truth table
+
+            if self.gate_name == 'AND': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) == self.num_inputs, probs_high, probs_low)
+            elif self.gate_name == 'OR': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) > 0, probs_high, probs_low)
+            elif self.gate_name == 'NOT': # 1 input
+                self.output_prob = np.where(self.truth_table[:,0] == False, probs_high, probs_low)
+            elif self.gate_name == 'NAND': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) != self.num_inputs, probs_high, probs_low)
+            elif self.gate_name == 'NOR': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) == 0, probs_high, probs_low)
+            elif self.gate_name == 'XOR': # 2 inputs
+                self.output_prob = np.where(np.logical_xor(self.truth_table[:,0], self.truth_table[:,1]), probs_high, probs_low)
+            elif self.gate_name == 'XNOR': # 2 inputs
+                self.output_prob = np.where(np.logical_not(np.logical_xor(self.truth_table[:,0], self.truth_table[:,1])), probs_high, probs_low)
+
+        ## DETERMINISTIC GATE SETUP ## (special case of probabilistic)
+
+        elif self.gate_type == 'deterministic':
+            self.input_prob = np.array([]) # unused for now - can implement later
+
+            self.truth_table = np.array(list(product([False, True], repeat=self.num_inputs))) # contains all permutations of the inputs
+
+            # Need to initialize these based on specific gates
+
+            if self.gate_name == 'AND': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) == self.num_inputs, 1, 0)
+            elif self.gate_name == 'OR': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) > 0, 1, 0)
+            elif self.gate_name == 'NOT': # 1 input
+                self.output_prob = np.where(self.truth_table[:,0] == False, 1, 0)
+            elif self.gate_name == 'NAND': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) != self.num_inputs, 1, 0)
+            elif self.gate_name == 'NOR': # n inputs
+                self.output_prob = np.where(np.sum(self.truth_table, axis=1) == 0, 1, 0)
+            elif self.gate_name == 'XOR': # 2 inputs
+                self.output_prob = np.where(np.logical_xor(self.truth_table[:,0], self.truth_table[:,1]), 1, 0)
+            elif self.gate_name == 'XNOR': # 2 inputs
+                self.output_prob = np.where(np.logical_not(np.logical_xor(self.truth_table[:,0], self.truth_table[:,1])), 1, 0)
+
+        else:
+
+            print('Illegal gate type!')
+            exit()
+
 
         ## CONNECTIONS SETUP ##
         self.connections = [] # IDs of connections
@@ -52,20 +101,7 @@ class Gates:
 
         ## Determinstic Gates ## 
         elif self.gate_type == 'deterministic':
-            if self.gate_type == 'AND': # n inputs
-                return np.all(inputs)
-            elif self.gate_type == 'OR': # n inputs
-                return np.any(inputs)
-            elif self.gate_type == 'NOT': # 1 input
-                return not inputs[0]
-            elif self.gate_type == 'NAND': # n inputs
-                return np.logical_not(np.all(inputs))
-            elif self.gate_type == 'NOR': # n inputs
-                return np.logical_not(np.any(inputs))
-            elif self.gate_type == 'XOR': # 2 inputs
-                return np.logical_xor(inputs[0],inputs[1])
-            elif self.gate_type == 'XNOR': # 2 inputs
-                return np.logical_not(np.logical_xor(inputs[0],inputs[1]))
+            return self.output_prob[np.where((self.truth_table == inputs).all(axis=1))]
 
         ## Special Gates ##
         elif self.gate_type == 'special':
