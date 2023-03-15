@@ -23,6 +23,8 @@ class Gates:
             self.num_inputs = 2
         else:
             self.num_inputs = 1
+        
+        self.num_outputs = np.random.randint(1, len(output_ids))
 
         ## PROBABILISTIC GATE SETUP ##
 
@@ -86,7 +88,9 @@ class Gates:
 
 
         ## CONNECTIONS SETUP ##
-        self.connections = [] # IDs of connections
+
+        self.input_connections = np.random.choice(input_ids+hidden_ids, self.num_inputs) # IDs of input connections - with replacement
+        self.output_connections = np.random.choice(output_ids, self.num_outputs, replace=False) # IDs of output connections - without replacement
 
     # Inputs are assumed to be 1 to n input entries (depending on gate type)
     def evaluate(self, inputs):

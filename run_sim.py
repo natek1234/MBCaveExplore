@@ -51,6 +51,8 @@ if __name__ == '__main__':
         print(agents[0].gates[i].num_inputs)
         print(agents[0].gates[i].truth_table)
         print(agents[0].gates[i].output_prob)
+        print(agents[0].gates[i].input_connections)
+        print(agents[0].gates[i].output_connections)
 
     ## EVOLUTION PROCESS ## 
     for evo_step in range(0, params['evolution_steps']):

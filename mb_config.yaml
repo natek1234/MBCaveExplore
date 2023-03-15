@@ -39,4 +39,4 @@ caves_map1: [[20, 20], [500, 800], [1000, 100]]
 
 # Map file locations
 maps:
-  - './map_test.txt'
+  - './maps_6_caves/map_1_r10.txt'
