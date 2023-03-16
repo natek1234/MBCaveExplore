@@ -2,6 +2,7 @@ import yaml
 import numpy as np
 from MarkovBrain import MarkovBrain
 import matplotlib.pyplot as plt
+import copy
 
 VISUALIZE = False # Visualization option to be implemented
 
@@ -39,8 +40,8 @@ if __name__ == '__main__':
     ## GENERATE FIRST GENERATION ##
 
     agents = []
-    # Initialize first Markov Brains
-    for agent in range(0, params['swarm_size']):
+    # Initialize first pool of Markov Brains
+    for agent in range(0, params['pool_size']):
         agents = agents + [MarkovBrain(params['num_inputs'], params['num_outputs'], params['num_hidden'], params['num_gates'], params['gate_types'])]
 
     print(agents[0].ids)
@@ -55,14 +56,25 @@ if __name__ == '__main__':
         print(agents[0].gates[i].output_connections)
 
     ## EVOLUTION PROCESS ## 
+
     for evo_step in range(0, params['evolution_steps']):
 
-        ## SIMULATION PROCESS ##
-        for sim_step in range(0, params['time_steps']):
+        # This loop goes over every agent variation for this evolution step
+        for agent in agents:
 
-            # Complete the simulation process (brain updates, movement, etc.)
+            # Create simulation pool of agents
+            sim_agents = [] # stores copies of the simulation agent
+            for i in range(0, params['swarm_size']):
+                sim_agents = sim_agents + [copy.deepcopy(agent)]
+        
+            ## SIMULATION PROCESS ##
+            for sim_step in range(0, params['time_steps']):
 
-            pass
+                # Complete the simulation process (brain updates, movement, etc.)
+
+                pass
+
+        # After all agents have been simulated, compare fitness and evolve
 
         ## SELECTION ## 
 

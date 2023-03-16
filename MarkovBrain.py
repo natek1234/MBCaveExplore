@@ -40,7 +40,7 @@ class MarkovBrain:
         self.fitness = 0 # starts at neutral point
         # Location
         self.location = None
-    
+
     # Perform brain update, including fitness update
     def brain_update(self):
 

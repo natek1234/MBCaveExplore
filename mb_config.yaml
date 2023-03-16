@@ -30,6 +30,7 @@ special_gate_types: []
 
 ## Simulation Configuration ##
 
+pool_size: 20
 swarm_size: 10 # number of MB agents
 time_steps: 1000 # number of time steps to finish one simulation round
 evolution_steps: 100 # number of evolution steps to take
