@@ -4,7 +4,9 @@ from MarkovBrain import MarkovBrain
 import matplotlib.pyplot as plt
 import copy
 
+VISUALIZE_GRAD_MAP = False
 VISUALIZE = False # Visualization option to be implemented
+MUT_PROB = 0.01 # Mutation probability
 
 # Perform mutation on a brain
 def mutate(brain):
@@ -43,10 +45,32 @@ if __name__ == '__main__':
     center = tuple(i//2 for i in cave_map.shape) # extract center coordinate
     cave_map_grad = np.gradient(cave_map) # pre-compute gradient of cave_map
 
+    if VISUALIZE_GRAD_MAP:
+        fig, (ax1, ax2) = plt.subplots(1,2, sharex=True, sharey=True)
+
+        # plot the first subplot
+        im1 = ax1.imshow(cave_map_grad[0], cmap='coolwarm', vmin=np.min(cave_map_grad)*0.5, vmax=np.max(cave_map_grad)*0.5)
+        ax1.set_title('Cave map gradient (y direction)')
+        ax1.set_xlabel('x-axis (2m per pixel)')
+        ax1.set_ylabel('y-axis (2m per pixel)')
+
+        # plot the second subplot
+        im2 = ax2.imshow(cave_map_grad[1], cmap='coolwarm', vmin=np.min(cave_map_grad)*0.5, vmax=np.max(cave_map_grad)*0.5)
+        ax2.set_title('Cave map gradient (x direction)')
+        ax2.set_xlabel('x-axis (2m per pixel)')
+        ax2.set_ylabel('y-axis (2m per pixel)')
+
+        # create an axes object for the colorbar
+        cbar_ax = fig.add_axes([0.95, 0.15, 0.02, 0.7])
+
+        # add the shared colorbar
+        cbar = plt.colorbar(im2, cax=cbar_ax)
+
+        plt.show()
+
     ## GENERATE FIRST GENERATION ##
 
     agents = []
-    fitness = np.zeros(params['pool_size'])
     # Initialize first pool of Markov Brains
     for agent in range(0, params['pool_size']):
         agents = agents + [MarkovBrain(params['num_inputs'], params['num_outputs'], params['num_hidden'], params['num_gates'], params['gate_types'])]
@@ -67,6 +91,8 @@ if __name__ == '__main__':
     ## EVOLUTION PROCESS ## 
 
     for evo_step in range(0, params['evolution_steps']):
+
+        fitness = np.zeros(params['pool_size']) # initialize fitness pool for all agents
 
         # This loop goes over every agent variation for this evolution step
         for agent_index, agent in enumerate(agents):
@@ -90,6 +116,21 @@ if __name__ == '__main__':
 
             sim_fitness = np.zeros(params['swarm_size']) # Store fitness of each agent
 
+            ## VISUALIZATION ##
+            if VISUALIZE:
+
+                fig, ax = plt.subplots(1, 1)
+
+                # create an initial plot with the cave_map
+                im = ax.imshow(cave_map, cmap='coolwarm', vmin=np.min(cave_map), vmax=np.max(cave_map)*1.25)
+                ax.set_title('Agent Locations')
+                plt.colorbar(im)
+
+                scatter = ax.scatter([loc[1] for loc in agent_locations], [loc[0] for loc in agent_locations], c='r', s=2)
+
+                # show the plot
+                plt.show(block=False)
+
             # Simulate over a certain number of time steps
             for sim_step in range(0, params['time_steps']):
                 new_locs = []
@@ -105,17 +146,30 @@ if __name__ == '__main__':
 
                     # Simulates 1 update step and returns the new location for the simulation agent
                     loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
-                    print(sim_agent.location)
                     new_locs = new_locs + [loc]  
                     sim_fitness[i] = fit
 
                 # Update agent locations
-                print(agent_locations)
+                #print(agent_locations)
                 agent_locations = list(new_locs)
 
-                print(new_locs)
-                exit()
-                pass
+                ## UPDATE VISUALIZATION ##
+                if VISUALIZE:
+                    # Update the dots which represents the agents using the new agent locations on the previously made plot
+
+                    # draw the plot
+                    scatter.remove()
+                    scatter = ax.scatter([loc[1] for loc in agent_locations], [loc[0] for loc in agent_locations], c='r', s=2)
+                    plt.draw()
+                    plt.pause(0.001) # essentially controls simulation speed
+
+            # Close figure
+            if VISUALIZE:
+                plt.close()  
+
+            # Update the agent-level fitness
+            fitness[agent_index] = np.mean(sim_fitness)  
+            print(fitness)
 
         # After all agents have been simulated, compare fitness and evolve
 

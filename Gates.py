@@ -89,8 +89,9 @@ class Gates:
 
         ## CONNECTIONS SETUP ##
 
-        self.input_connections = np.random.choice(input_ids+hidden_ids, self.num_inputs) # IDs of input connections - with replacement
-        self.output_connections = np.random.choice(output_ids, self.num_outputs, replace=False) # IDs of output connections - without replacement
+        self.input_connections = np.random.choice(input_ids+hidden_ids, self.num_inputs, replace=False) # IDs of input connections - with replacement
+        #self.output_connections = np.random.choice(output_ids, self.num_outputs, replace=False) # IDs of output connections - without replacement
+        self.output_connections = np.random.choice(output_ids, 1, replace=False) # IDs of output connections - without replacement (note the previous line caused too many outputs to be 1)
 
 
     # Inputs are assumed to be 1 to n input entries (depending on gate type)
@@ -98,7 +99,6 @@ class Gates:
 
         ## Probabilistic Gates ##
         if self.gate_type == 'probabilistic':
-
             ind = np.where((self.truth_table == inputs).all(axis=1)) # find location in truth table
             rand = np.random.rand() # generate a random number between 0 and 1
 
