@@ -1,6 +1,7 @@
 import yaml
 import numpy as np
 from MarkovBrain import MarkovBrain
+from Gates import Gates
 import matplotlib.pyplot as plt
 import copy
 
@@ -10,23 +11,31 @@ MUT_PROB = 0.01 # Mutation probability
 
 # Perform mutation on a brain
 def mutate(brain):
-
+    for gate in range(0,brain.num_gates):
+        # Mutate the gate with probability MUT_PROB - Re-create the gate randomly
+        if np.random.rand() < MUT_PROB:
+            # Randomly initialize gates to probabilistic, deterministic, or special
+            gate_type = np.random.choice(['probabilistic','deterministic']) # 0 is probabilistic, 1 is deterministic, 2 is special (to be added later)
+            brain.gates[gate] = Gates(gate_type, np.random.choice(brain.gate_types), brain.gate_ids[gate], brain.num_inputs+brain.num_hidden, brain.input_ids, brain.output_ids, brain.hidden_ids)
+            #print('MUTATION')
+            #exit()
+   
     return True
 
 # Perform crossover on a brain
+# When a gate is swapped, all its inputs, outputs, and other properties are also swapped
 def crossover(brain_1, brain_2):
 
-    return True
+    new_brain = copy.deepcopy(brain_1) # start the new brain as a duplicate of one of the input brains
 
-def selection(brains):
+    # Randomly keep gates or select gates from the other brain
+    for gate_ind in range(0, new_brain.num_gates):
+       
+        # Only change half the gates 
+        if np.random.rand() < 0.5: # 50% prob of changing the gate
+            new_brain.gates[gate_ind] = copy.deepcopy(brain_2.gates[gate_ind]) # make the gate a copy of the gate from the second brain
 
-    best_brains = None
-
-    return best_brains
-
-def simulate_step(brain, brain_locations, map):
-    
-    return True
+    return new_brain
 
 if __name__ == '__main__':
 
@@ -92,10 +101,16 @@ if __name__ == '__main__':
 
     for evo_step in range(0, params['evolution_steps']):
 
+        print('\n\nEVOLUTION STEP: {}/{}'.format(evo_step, params['evolution_steps']))
+        print('---------------------------------------------------------------')
+
         fitness = np.zeros(params['pool_size']) # initialize fitness pool for all agents
 
         # This loop goes over every agent variation for this evolution step
         for agent_index, agent in enumerate(agents):
+
+            print(f'\n\nMB CANDIDATE: {agent_index}')
+            print('---------------------------------------------------------------')
 
             # Create simulation pool of agents
             sim_agents = [] # stores copies of the simulation agent
@@ -133,6 +148,7 @@ if __name__ == '__main__':
 
             # Simulate over a certain number of time steps
             for sim_step in range(0, params['time_steps']):
+                print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
                 new_locs = []
 
                 # Each simulation agent must be updated, all locations are only updated after all updates (parallel updates)
@@ -168,22 +184,75 @@ if __name__ == '__main__':
                 plt.close()  
 
             # Update the agent-level fitness
-            fitness[agent_index] = np.mean(sim_fitness)  
-            print(fitness)
+            fitness[agent_index] = np.mean(sim_fitness)
 
         # After all agents have been simulated, compare fitness and evolve
 
         ## SELECTION ## 
 
-        # Select best performing brains as parents
+        # Select two highest performing brains as parents
+
+        idx = np.argpartition(fitness, -2)[-2:] # get indices of top two elements
+
+        '''
+        # TEST - List properties of parent brains
+        print('Parent 1')
+        print('------------------------------------------')
+        for i in range(0, 5):
+            print(agents[idx[0]].gates[i].gate_type)
+            print(agents[idx[0]].gates[i].gate_name)
+            print(agents[idx[0]].gates[i].id)
+            print(agents[idx[0]].gates[i].num_inputs)
+            #print(agents[idx[0]].gates[i].truth_table)
+            #print(agents[idx[0]].gates[i].output_prob)
+            print(agents[idx[0]].gates[i].input_connections)
+            print(agents[idx[0]].gates[i].output_connections)
+
+        print('Parent 2')
+        print('------------------------------------------')
+        for i in range(0, 5):
+            print(agents[idx[1]].gates[i].gate_type)
+            print(agents[idx[1]].gates[i].gate_name)
+            print(agents[idx[1]].gates[i].id)
+            print(agents[idx[1]].gates[i].num_inputs)
+            #print(agents[idx[1]].gates[i].truth_table)
+            #print(agents[idx[1]].gates[i].output_prob)
+            print(agents[idx[1]].gates[i].input_connections)
+            print(agents[idx[1]].gates[i].output_connections)
+        '''
 
         ## GENERATE ##
 
         # Create next generation of brains
+        new_agents = []
+        for agent in range(0, params['pool_size']):
+            #print(agent)
 
-        # Crossover
+            # Crossover: combine the two best performing agents randomly
+            new_agent = crossover(agents[idx[0]], agents[idx[1]])
 
-        # Mutation
+            # Mutation: mutate the new agent
+            mutate(new_agent)
+
+            '''
+            print('New agent gates: ')
+            print('------------------------------------------')
+            for i in range(0, 5):
+                print(new_agent.gates[i].gate_type)
+                print(new_agent.gates[i].gate_name)
+                print(new_agent.gates[i].id)
+                print(new_agent.gates[i].num_inputs)
+                #print(new_agent.gates[i].truth_table)
+                #print(new_agent.gates[i].output_prob)
+                print(new_agent.gates[i].input_connections)
+                print(new_agent.gates[i].output_connections)
+            
+            '''
+
+            # Add the new agent to the pool
+            new_agents = new_agents + [new_agent]
+
+        agents = list(new_agents)
 
         ## RESET ##
 
