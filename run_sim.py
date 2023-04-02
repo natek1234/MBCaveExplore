@@ -5,6 +5,7 @@ from Gates import Gates
 import matplotlib.pyplot as plt
 import copy
 import pickle
+import imageio
 
 VISUALIZE_GRAD_MAP = False
 VISUALIZE = False # Visualization option to be implemented
@@ -106,6 +107,7 @@ if __name__ == '__main__':
     all_parents =  [] # will store all the selected parents objects for saving
     all_fitness = [] # will store all the fitness of all the selected parents
     all_fitness_avg = [] # stores average of selected parents' fitness
+    best_brain = None # stores the best performing brain
 
     ## EVOLUTION PROCESS ## 
 
@@ -207,9 +209,17 @@ if __name__ == '__main__':
         print(f'\n\nEnd of generation \nParent 1 fitness: {fitness[idx[0]]} \nParent 2 fitness: {fitness[idx[1]]}')
 
         # Collect Data
+        agents[idx[0]].fitness = fitness[idx[0]]
+        agents[idx[1]].fitness = fitness[idx[1]]
         all_parents = all_parents + [[agents[idx[0]], agents[idx[1]]]]
         all_fitness = all_fitness + [[fitness[idx[0]], fitness[idx[1]]]]
         all_fitness_avg = all_fitness_avg + [np.mean([fitness[idx[0]], fitness[idx[1]]])]
+
+        # Update best brain
+        if best_brain == None:
+            best_brain = agents[idx[1]]
+        elif fitness[idx[1]] > best_brain.fitness:
+            best_brain = agents[idx[1]]
 
         '''
         # TEST - List properties of parent brains
@@ -302,6 +312,76 @@ if __name__ == '__main__':
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_fitness_avg, f)
 
-        with open(OUTPUT_PATH + ' fitness.pkl', 'wb') as f:
+        with open(OUTPUT_PATH + 'fitness.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_fitness, f)
+
+        '''
+
+        # Create simulation pool of agents
+        sim_agents = [] # stores copies of the simulation agent
+        agent_locations = []
+        for i in range(0, params['swarm_size']):
+            sim_agents = sim_agents + [copy.deepcopy(best_brain)]
+            loc = None # will be tuple containing location of agent on map
+
+        
+        # Initialize locations in a circle around center of map
+        rad = len(sim_agents) // 2 # define radius as half the number of agents to allow for some margin
+
+        # initialize agent locations equidistant around a circle
+        for index in range(len(sim_agents)):
+            agent_locations.append((center[0] + int(np.round(rad*np.cos((index*2*np.pi)/len(sim_agents)))), center[1] + int(np.round(rad*np.sin((index*2*np.pi)/len(sim_agents))))))          
+    
+        ## SIMULATION PROCESS ##
+
+        sim_fitness = np.zeros(params['swarm_size']) # Store fitness of each agent
+
+        ## VISUALIZATION ##
+        if VISUALIZE:
+
+            fig, ax = plt.subplots(1, 1)
+
+            # create an initial plot with the cave_map
+            im = ax.imshow(cave_map, cmap='coolwarm', vmin=np.min(cave_map), vmax=np.max(cave_map)*1.25)
+            ax.set_title('Agent Locations')
+            plt.colorbar(im)
+
+            scatter = ax.scatter([loc[1] for loc in agent_locations], [loc[0] for loc in agent_locations], c='r', s=2)
+
+            # show the plot
+            plt.show(block=False)
+
+        # Simulate over a certain number of time steps
+        for sim_step in range(0, params['time_steps']):
+            print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
+            new_locs = []
+
+            # Each simulation agent must be updated, all locations are only updated after all updates (parallel updates)
+            for i, sim_agent in enumerate(sim_agents):
+                
+                # Identify the locations of other agents
+                other_agents = agent_locations[:i] + agent_locations[i+1:]
+
+                this_agent = agent_locations[i] # extract this agent's location
+
+
+                # Simulates 1 update step and returns the new location for the simulation agent
+                loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
+                new_locs = new_locs + [loc]  
+                sim_fitness[i] = fit
+
+            # Update agent locations
+            #print(agent_locations)
+            agent_locations = list(new_locs)
+
+            ## UPDATE VISUALIZATION ##
+            if VISUALIZE:
+                # Update the dots which represents the agents using the new agent locations on the previously made plot
+
+                # draw the plot
+                scatter.remove()
+                scatter = ax.scatter([loc[1] for loc in agent_locations], [loc[0] for loc in agent_locations], c='r', s=2)
+                plt.draw()
+                plt.pause(0.001) # essentially controls simulation speed
+        '''
