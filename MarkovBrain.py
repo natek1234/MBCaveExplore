@@ -152,7 +152,7 @@ class MarkovBrain:
         # Fitness rule : promote temperature gradients
         if time_of_day == 'DAY':
             # Promote negative gradients (lower temperatures in caves)
-            self.fitness = self.fitness - cave_map_grad[0][this_agent] - cave_map_grad[1][this_agent] # y and x derivatives
+            self.fitness = self.fitness + (np.abs(local_x_grad) + np.abs(local_y_grad)) # y and x derivatives
         else:
             # Promote positive gradients (higher temperatures in caves)
             self.fitness = self.fitness + cave_map_grad[0][this_agent] + cave_map_grad[1][this_agent] # y and x derivatives

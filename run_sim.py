@@ -4,9 +4,14 @@ from MarkovBrain import MarkovBrain
 from Gates import Gates
 import matplotlib.pyplot as plt
 import copy
+import pickle
 
 VISUALIZE_GRAD_MAP = False
 VISUALIZE = False # Visualization option to be implemented
+PLOT_OUTPUT = True # Plot and save the output fitness and statistics
+OUTPUT_PATH = './stats/'
+SAVE_STATS = True # Saves line of descent, avg fitness, and fitness to file
+
 MUT_PROB = 0.01 # Mutation probability
 
 # Perform mutation on a brain
@@ -96,6 +101,11 @@ if __name__ == '__main__':
         print(agents[0].gates[i].input_connections)
         print(agents[0].gates[i].output_connections)
     '''
+
+    ## DATA COLLECTION ##
+    all_parents =  [] # will store all the selected parents objects for saving
+    all_fitness = [] # will store all the fitness of all the selected parents
+    all_fitness_avg = [] # stores average of selected parents' fitness
 
     ## EVOLUTION PROCESS ## 
 
@@ -194,6 +204,13 @@ if __name__ == '__main__':
 
         idx = np.argpartition(fitness, -2)[-2:] # get indices of top two elements
 
+        print(f'\n\nEnd of generation \nParent 1 fitness: {fitness[idx[0]]} \nParent 2 fitness: {fitness[idx[1]]}')
+
+        # Collect Data
+        all_parents = all_parents + [[agents[idx[0]], agents[idx[1]]]]
+        all_fitness = all_fitness + [[fitness[idx[0]], fitness[idx[1]]]]
+        all_fitness_avg = all_fitness_avg + [np.mean([fitness[idx[0]], fitness[idx[1]]])]
+
         '''
         # TEST - List properties of parent brains
         print('Parent 1')
@@ -254,6 +271,37 @@ if __name__ == '__main__':
 
         agents = list(new_agents)
 
-        ## RESET ##
+    
+    ## POST PROCESSING ##
 
-        # Reset map environment 
+    # Plot and save the output statistics
+    if PLOT_OUTPUT:
+        
+        iterations = np.arange(params['evolution_steps'])
+
+        # Create the plot
+        plt.plot(iterations, all_fitness_avg)
+
+        # Set the axis labels and title
+        plt.xlabel('Evolution Step')
+        plt.ylabel('Fitness')
+        plt.title('Agent Fitness vs. Evolution Step')
+
+        # Save the output
+        plt.savefig(OUTPUT_PATH + 'avg_fitness_test.png')
+
+        # Display the plot
+        plt.show()
+
+    if SAVE_STATS:
+        with open(OUTPUT_PATH + 'parents_LOD.pkl', 'wb') as f:
+            # Use the pickle module to dump the list of objects into the file
+            pickle.dump(all_parents, f)
+
+        with open(OUTPUT_PATH + 'avg_fitness.pkl', 'wb') as f:
+            # Use the pickle module to dump the list of objects into the file
+            pickle.dump(all_fitness_avg, f)
+
+        with open(OUTPUT_PATH + ' fitness.pkl', 'wb') as f:
+            # Use the pickle module to dump the list of objects into the file
+            pickle.dump(all_fitness, f)
