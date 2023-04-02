@@ -33,8 +33,8 @@ special_gate_types: []
 pool_size: 20
 swarm_size: 10 # number of MB agents
 time_steps: 500 # number of time steps to finish one simulation round
-evolution_steps: 10 # number of evolution steps to take
+evolution_steps: 25 # number of evolution steps to take
 
 # Map file locations
 maps:
-  - './maps_6_caves/map_2_r10.txt'
+  - './maps_6_caves/map_1_r10.txt'
