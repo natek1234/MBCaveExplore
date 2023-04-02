@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-path = './maps_6_caves/map_1_r10.txt'
+path = './maps_6_caves/map_2_r10.txt'
 data = np.loadtxt(path)
 
 im = plt.imshow(data, cmap='coolwarm', vmin=np.min(data), vmax=np.max(data)*1.25)
