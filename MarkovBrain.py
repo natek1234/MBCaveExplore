@@ -2,6 +2,7 @@ import numpy as np
 from Gates import Gates
 import math
 
+CAVES = [[62,458],[232,318],[193,271],[451,333],[422,47],[429,382]] # x, y
 class MarkovBrain:
     def __init__(self, num_inputs, num_outputs, num_hidden, num_gates, gates, all_gates = True):
 
@@ -42,6 +43,7 @@ class MarkovBrain:
         self.fitness = 0 # starts at neutral point
         # Location
         self.location = None
+        self.start_loc = None
 
     # Perform brain update, including fitness update
 
@@ -50,7 +52,7 @@ class MarkovBrain:
     # Input 5: Distance to closest agent
 
     # Output 1-4: up, down, left, and right movement (in that order)
-    def brain_update(self, cave_map, cave_map_grad, other_agents, this_agent, time_of_day = 'DAY'):
+    def brain_update(self, cave_map, cave_map_grad, other_agents, this_agent, time_of_day = 'DAY', first_iter = False, last_iter = False):
 
         ## INPUT LAYER ##
 
@@ -161,6 +163,22 @@ class MarkovBrain:
         for d in closest_agent:
             if d < 2: # covers all locations directly around the current location
                 self.fitness = self.fitness - 30 # harsh penalty if there is a crash
+
+        if first_iter == True:
+            self.start_loc = this_agent
+
+        # Fitness rule : promote ending close to the nearest cave (within acceptable threshold)
+        if last_iter:
+            if this_agent == self.start_loc: # completely reject all agents that don't move at all
+                self.fitness = -np.inf
+                
+            # Distance to closest cave 
+            #closest_agent = [math.dist(cave, this_agent) for cave in CAVES]
+            
+            #if min(closest_agent) >= 5: # Only activate penalty if further than 5 pixels (10m)
+            #    self.fitness = self.fitness - 10*min(closest_agent)
+        
+
         
         return self.location, self.fitness # return the new position of the agent
     

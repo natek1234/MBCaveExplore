@@ -38,6 +38,7 @@ for i in range(0, len(brains)):
         best_brain_fitness = brains[i][1].fitness
         best_brain = brains[i][1]
 
+# best_brain = brains[-1][1] # pick last brain
 print(best_brain_fitness)
 print(best_brain.fitness)
 
@@ -54,7 +55,7 @@ for i in range(0, params['swarm_size']):
 
 
 # Initialize locations in a circle around center of map
-rad = len(sim_agents) // 2 # define radius as half the number of agents to allow for some margin
+rad = len(sim_agents) # define radius as half the number of agents to allow for some margin
 
 # initialize agent locations equidistant around a circle
 for index in range(len(sim_agents)):
@@ -106,7 +107,10 @@ for sim_step in range(0, params['time_steps']):
 
 
         # Simulates 1 update step and returns the new location for the simulation agent
-        loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
+        if sim_step == params['time_steps']-1:
+            loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent, last_iter=True) # last iteration takes into account distance to nearest cave
+        else:
+            loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
         new_locs = new_locs + [loc]  
         sim_fitness[i] = fit
 

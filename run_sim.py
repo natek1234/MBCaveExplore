@@ -133,7 +133,7 @@ if __name__ == '__main__':
 
 
             # Initialize locations in a circle around center of map
-            rad = len(sim_agents) // 2 # define radius as half the number of agents to allow for some margin
+            rad = len(sim_agents) # define radius as half the number of agents to allow for some margin
 
             # initialize agent locations equidistant around a circle
             for index in range(len(sim_agents)):
@@ -173,7 +173,12 @@ if __name__ == '__main__':
 
 
                     # Simulates 1 update step and returns the new location for the simulation agent
-                    loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
+                    if sim_step == 0:
+                        loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent, first_iter=True) # last iteration takes into account distance to nearest cave
+                    if sim_step == params['time_steps']-1:
+                        loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent, last_iter=True) # last iteration takes into account distance to nearest cave
+                    else:
+                        loc, fit = sim_agent.brain_update(cave_map, cave_map_grad, other_agents, this_agent)
                     new_locs = new_locs + [loc]  
                     sim_fitness[i] = fit
 
@@ -300,7 +305,7 @@ if __name__ == '__main__':
         plt.savefig(OUTPUT_PATH + 'avg_fitness.png')
 
         # Display the plot
-        plt.show()
+        #plt.show()
 
     if SAVE_STATS:
         with open(OUTPUT_PATH + 'parents_LOD.pkl', 'wb') as f:
@@ -314,3 +319,7 @@ if __name__ == '__main__':
         with open(OUTPUT_PATH + 'fitness.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_fitness, f)
+
+        with open(OUTPUT_PATH + 'sim_params.pkl', 'wb') as f:
+            # Use the pickle module to dump the list of objects into the file
+            pickle.dump(params, f)
