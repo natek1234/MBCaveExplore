@@ -5,7 +5,7 @@
 num_inputs: 5
 num_outputs: 4
 num_hidden: 4
-num_gates: 8
+num_gates: 15
 
 # By default, all gate types are used. Can modify the gates list to include specific gates only or use
 # the det_gates, prob_gates, and special_gates options for specific groups of gates.
@@ -38,6 +38,8 @@ evolution_steps: 100 # number of evolution steps to take
 # Map file locations
 maps:
   - './maps_6_caves/map_1_r10.txt'
+  - './maps_6_caves/map_2_r10.txt'
+  - './maps_6_caves/map_3_r10.txt'
 
 
 caves:

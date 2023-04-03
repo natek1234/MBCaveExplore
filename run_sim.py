@@ -12,6 +12,7 @@ VISUALIZE = False # Visualization option to be implemented
 PLOT_OUTPUT = True # Plot and save the output fitness and statistics
 OUTPUT_PATH = './stats/'
 SAVE_STATS = True # Saves line of descent, avg fitness, and fitness to file
+RANDOM_MAP = True # Select map at each evolution step
 
 MUT_PROB = 0.01 # Mutation probability
 
@@ -56,9 +57,18 @@ if __name__ == '__main__':
     ## SETUP SIM ENVIRONMENT ##
 
     # Create map
-    cave_map = np.loadtxt(params['maps'][0])
+    cave_map = np.loadtxt(params['maps'][0]) # default map is first one
     center = tuple(i//2 for i in cave_map.shape) # extract center coordinate
-    cave_map_grad = np.gradient(cave_map) # pre-compute gradient of cave_map
+    cave_map_grad = np.gradient(cave_map) # pre-compute gradient of cave_map - default is first map
+
+    # Some pre-processing required if random maps are desired
+    if RANDOM_MAP:
+        maps = []
+        grad_maps = []
+
+        for m in params['maps']:
+            maps = maps + [np.loadtxt(m)] # store all maps
+            grad_maps = grad_maps + [np.gradient(maps[-1])] # store all map gradients
 
     if VISUALIZE_GRAD_MAP:
         fig, (ax1, ax2) = plt.subplots(1,2, sharex=True, sharey=True)
@@ -113,8 +123,15 @@ if __name__ == '__main__':
 
     for evo_step in range(0, params['evolution_steps']):
 
+        # Randomly select map
+        if RANDOM_MAP:
+            ind = np.random.randint(0,len(params['maps'])) # choose random index
+            cave_map = maps[ind]
+            cave_map_grad = grad_maps[ind]
+
         print('\n\nEVOLUTION STEP: {}/{}'.format(evo_step, params['evolution_steps']))
         print('---------------------------------------------------------------')
+        print('Map: ', params['maps'][ind])
 
         fitness = np.zeros(params['pool_size']) # initialize fitness pool for all agents
 
@@ -129,6 +146,7 @@ if __name__ == '__main__':
             agent_locations = []
             for i in range(0, params['swarm_size']):
                 sim_agents = sim_agents + [copy.deepcopy(agent)]
+                sim_agents[-1].fitness = 0.0 # ensure fitness of each simulation starts at 0 (avoid copying errors)
                 loc = None # will be tuple containing location of agent on map
 
 
@@ -213,17 +231,19 @@ if __name__ == '__main__':
         print(f'\n\nEnd of generation \nParent 1 fitness: {fitness[idx[0]]} \nParent 2 fitness: {fitness[idx[1]]}')
 
         # Collect Data
-        agents[idx[0]].fitness = fitness[idx[0]]
-        agents[idx[1]].fitness = fitness[idx[1]]
-        all_parents = all_parents + [[agents[idx[0]], agents[idx[1]]]]
+        parent_1 = copy.deepcopy(agents[idx[0]])
+        parent_2 = copy.deepcopy(agents[idx[1]])
+        parent_1.fitness = fitness[idx[0]]
+        parent_2.fitness = fitness[idx[1]]
+        all_parents = all_parents + [[parent_1, parent_2]]
         all_fitness = all_fitness + [[fitness[idx[0]], fitness[idx[1]]]]
         all_fitness_avg = all_fitness_avg + [np.mean([fitness[idx[0]], fitness[idx[1]]])]
 
         # Update best brain
         if best_brain == None:
-            best_brain = agents[idx[1]]
+            best_brain = parent_2
         elif fitness[idx[1]] > best_brain.fitness:
-            best_brain = agents[idx[1]]
+            best_brain = parent_2
 
         '''
         # TEST - List properties of parent brains

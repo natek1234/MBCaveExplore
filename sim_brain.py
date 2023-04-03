@@ -8,7 +8,8 @@ import imageio.v3 as iio
 BRAIN_PATH = './stats/parents_LOD.pkl'
 TEST = './stats/fitness.pkl'
 GIF_PATH = './gif_imgs/'
-SAVE_SIM_GIF = True
+SAVE_SIM_GIF = False
+VISUALIZE_GRAD_MAP = False
 
 stream = open("mb_config.yaml", 'r')
 params = yaml.safe_load(stream) # all config parameters saved in params
@@ -17,6 +18,29 @@ params = yaml.safe_load(stream) # all config parameters saved in params
 cave_map = np.loadtxt(params['maps'][0])
 center = tuple(i//2 for i in cave_map.shape) # extract center coordinate
 cave_map_grad = np.gradient(cave_map) # pre-compute gradient of cave_map
+
+if VISUALIZE_GRAD_MAP:
+    fig, (ax1, ax2) = plt.subplots(1,2, sharex=True, sharey=True)
+
+    # plot the first subplot
+    im1 = ax1.imshow(cave_map_grad[0], cmap='coolwarm', vmin=np.min(cave_map_grad)*0.5, vmax=np.max(cave_map_grad)*0.5)
+    ax1.set_title('Cave map gradient (y direction)')
+    ax1.set_xlabel('x-axis (2m per pixel)')
+    ax1.set_ylabel('y-axis (2m per pixel)')
+
+    # plot the second subplot
+    im2 = ax2.imshow(cave_map_grad[1], cmap='coolwarm', vmin=np.min(cave_map_grad)*0.5, vmax=np.max(cave_map_grad)*0.5)
+    ax2.set_title('Cave map gradient (x direction)')
+    ax2.set_xlabel('x-axis (2m per pixel)')
+    ax2.set_ylabel('y-axis (2m per pixel)')
+
+    # create an axes object for the colorbar
+    cbar_ax = fig.add_axes([0.95, 0.15, 0.02, 0.7])
+
+    # add the shared colorbar
+    cbar = plt.colorbar(im2, cax=cbar_ax)
+
+    plt.show()
 
 
 # Open the file in read binary mode
@@ -51,6 +75,7 @@ sim_agents = [] # stores copies of the simulation agent
 agent_locations = []
 for i in range(0, params['swarm_size']):
     sim_agents = sim_agents + [copy.deepcopy(best_brain)]
+    sim_agents[-1].fitness = 0.0 # ensure fitness of each simulation starts at 0 (avoid copying errors)
     loc = None # will be tuple containing location of agent on map
 
 
@@ -144,6 +169,9 @@ for sim_step in range(0, params['time_steps']):
 # Close figure
 plt.close()  
 
-frames = np.stack([iio.imread(fig) for fig in gif_figs], axis=0)
+print(sim_fitness)
 
-iio.imwrite('./best_brain.gif', frames, duration=0.5)
+if SAVE_SIM_GIF:
+    frames = np.stack([iio.imread(fig) for fig in gif_figs], axis=0)
+
+    iio.imwrite('./best_brain.gif', frames, duration=0.5)
