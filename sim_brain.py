@@ -5,17 +5,18 @@ import matplotlib.pyplot as plt
 import copy
 import imageio.v3 as iio
 
-BRAIN_PATH = './stats/parents_LOD.pkl'
-TEST = './stats/fitness.pkl'
+DIR = "./stats/Archive/all_maps_8_inputs_add_distance/15_gates_100_iter/"
+BRAIN_PATH = DIR + 'parents_LOD.pkl'
+TEST = DIR + 'fitness.pkl'
 GIF_PATH = './gif_imgs/'
-SAVE_SIM_GIF = False
+SAVE_SIM_GIF = True
 VISUALIZE_GRAD_MAP = False
 
 stream = open("mb_config.yaml", 'r')
 params = yaml.safe_load(stream) # all config parameters saved in params
 
 # Create map
-cave_map = np.loadtxt(params['maps'][0])
+cave_map = np.loadtxt(params['maps'][1])
 center = tuple(i//2 for i in cave_map.shape) # extract center coordinate
 cave_map_grad = np.gradient(cave_map) # pre-compute gradient of cave_map
 
@@ -174,4 +175,4 @@ print(sim_fitness)
 if SAVE_SIM_GIF:
     frames = np.stack([iio.imread(fig) for fig in gif_figs], axis=0)
 
-    iio.imwrite('./best_brain.gif', frames, duration=0.5)
+    iio.imwrite(DIR + 'best_brain.gif', frames, duration=0.5)

@@ -107,7 +107,33 @@ class MarkovBrain:
         # Distance to closest agent - 1 if the distance is less than 3 pixels, 0 otherwise
         closest_agent = [math.dist(agent, this_agent) for agent in other_agents]
         
-        self.inputs[4] = 1 if min(closest_agent) <= 3 else 0
+        # Two types of distance detection - 8 inputs = directional, 5 inputs = absolute distance (threshold)
+        if self.num_inputs == 8:
+            closest_ind = np.argmin(closest_agent)
+            closest = closest_agent[closest_ind]
+            closest_coords = other_agents[closest_ind]
+
+            # By default, all inputs are 0
+            self.inputs[4] = 0
+            self.inputs[5] = 0
+            self.inputs[6] = 0
+            self.inputs[7] = 0
+
+            # If within threshold of 3 pixels
+            if closest <= 3:
+                # check y direction
+                if this_agent[0] > closest_coords[0]:
+                    self.inputs[4] = 1
+                else:
+                    self.inputs[5] = 1
+
+                # check x direction
+                if this_agent[1] > closest_coords[1]:
+                    self.inputs[6] = 1
+                else:
+                    self.inputs[7] = 1                
+        else:
+            self.inputs[4] = 1 if min(closest_agent) <= 3 else 0
 
         ## LOGIC LAYER ##
         gate_outputs = np.zeros(self.num_gates) # initialize a set of gate outputs
@@ -171,6 +197,8 @@ class MarkovBrain:
         if last_iter:
             if this_agent == self.start_loc: # completely reject all agents that don't move at all
                 self.fitness = -np.inf
+            else:
+                self.fitness = self.fitness + np.mean(closest_agent) # promote being far from other agents
                 
             # Distance to closest cave 
             #closest_agent = [math.dist(cave, this_agent) for cave in CAVES]
@@ -179,7 +207,6 @@ class MarkovBrain:
             #    self.fitness = self.fitness - 10*min(closest_agent)
         
 
-        
         return self.location, self.fitness # return the new position of the agent
     
     # Optional: encode as genome

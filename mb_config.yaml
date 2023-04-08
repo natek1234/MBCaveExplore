@@ -2,10 +2,10 @@
 
 ## Markov Brain Configuration ##
 
-num_inputs: 5
+num_inputs: 8
 num_outputs: 4
 num_hidden: 4
-num_gates: 15
+num_gates: 10
 
 # By default, all gate types are used. Can modify the gates list to include specific gates only or use
 # the det_gates, prob_gates, and special_gates options for specific groups of gates.

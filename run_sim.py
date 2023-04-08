@@ -12,7 +12,8 @@ VISUALIZE = False # Visualization option to be implemented
 PLOT_OUTPUT = True # Plot and save the output fitness and statistics
 OUTPUT_PATH = './stats/'
 SAVE_STATS = True # Saves line of descent, avg fitness, and fitness to file
-RANDOM_MAP = True # Select map at each evolution step
+RANDOM_MAP = False # Select map at each evolution step
+ALL_MAPS = True # Iterate over all maps at every evolution and take the average
 
 MUT_PROB = 0.01 # Mutation probability
 
@@ -100,19 +101,6 @@ if __name__ == '__main__':
     for agent in range(0, params['pool_size']):
         agents = agents + [MarkovBrain(params['num_inputs'], params['num_outputs'], params['num_hidden'], params['num_gates'], params['gate_types'])]
 
-    '''
-    print(agents[0].ids)
-    for i in range(0, agents[0].num_gates):
-        print(agents[0].gates[i].gate_type)
-        print(agents[0].gates[i].gate_name)
-        print(agents[0].gates[i].id)
-        print(agents[0].gates[i].num_inputs)
-        print(agents[0].gates[i].truth_table)
-        print(agents[0].gates[i].output_prob)
-        print(agents[0].gates[i].input_connections)
-        print(agents[0].gates[i].output_connections)
-    '''
-
     ## DATA COLLECTION ##
     all_parents =  [] # will store all the selected parents objects for saving
     all_fitness = [] # will store all the fitness of all the selected parents
@@ -131,7 +119,8 @@ if __name__ == '__main__':
 
         print('\n\nEVOLUTION STEP: {}/{}'.format(evo_step, params['evolution_steps']))
         print('---------------------------------------------------------------')
-        print('Map: ', params['maps'][ind])
+        if RANDOM_MAP:
+            print('Map: ', params['maps'][ind])
 
         fitness = np.zeros(params['pool_size']) # initialize fitness pool for all agents
 
@@ -245,33 +234,6 @@ if __name__ == '__main__':
         elif fitness[idx[1]] > best_brain.fitness:
             best_brain = parent_2
 
-        '''
-        # TEST - List properties of parent brains
-        print('Parent 1')
-        print('------------------------------------------')
-        for i in range(0, 5):
-            print(agents[idx[0]].gates[i].gate_type)
-            print(agents[idx[0]].gates[i].gate_name)
-            print(agents[idx[0]].gates[i].id)
-            print(agents[idx[0]].gates[i].num_inputs)
-            #print(agents[idx[0]].gates[i].truth_table)
-            #print(agents[idx[0]].gates[i].output_prob)
-            print(agents[idx[0]].gates[i].input_connections)
-            print(agents[idx[0]].gates[i].output_connections)
-
-        print('Parent 2')
-        print('------------------------------------------')
-        for i in range(0, 5):
-            print(agents[idx[1]].gates[i].gate_type)
-            print(agents[idx[1]].gates[i].gate_name)
-            print(agents[idx[1]].gates[i].id)
-            print(agents[idx[1]].gates[i].num_inputs)
-            #print(agents[idx[1]].gates[i].truth_table)
-            #print(agents[idx[1]].gates[i].output_prob)
-            print(agents[idx[1]].gates[i].input_connections)
-            print(agents[idx[1]].gates[i].output_connections)
-        '''
-
         ## GENERATE ##
 
         # Create next generation of brains
@@ -284,21 +246,6 @@ if __name__ == '__main__':
 
             # Mutation: mutate the new agent
             mutate(new_agent)
-
-            '''
-            print('New agent gates: ')
-            print('------------------------------------------')
-            for i in range(0, 5):
-                print(new_agent.gates[i].gate_type)
-                print(new_agent.gates[i].gate_name)
-                print(new_agent.gates[i].id)
-                print(new_agent.gates[i].num_inputs)
-                #print(new_agent.gates[i].truth_table)
-                #print(new_agent.gates[i].output_prob)
-                print(new_agent.gates[i].input_connections)
-                print(new_agent.gates[i].output_connections)
-            
-            '''
 
             # Add the new agent to the pool
             new_agents = new_agents + [new_agent]
