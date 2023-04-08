@@ -4,16 +4,23 @@ import yaml
 import matplotlib.pyplot as plt
 import copy
 import imageio.v3 as iio
+import sys
 
-DIR = "./stats/Archive/all_maps_8_inputs_add_distance/15_gates_100_iter/"
+# Read arguments and set up paths
+config_path = sys.argv[1]
+
+stream = open(config_path, 'r')
+params = yaml.safe_load(stream) # all config parameters saved in params
+
+out_path = params['out_path']
+
+DIR = out_path
 BRAIN_PATH = DIR + 'parents_LOD.pkl'
 TEST = DIR + 'fitness.pkl'
-GIF_PATH = './gif_imgs/'
+GIF_PATH = out_path + 'gif_imgs/'
 SAVE_SIM_GIF = True
 VISUALIZE_GRAD_MAP = False
 
-stream = open("mb_config.yaml", 'r')
-params = yaml.safe_load(stream) # all config parameters saved in params
 
 # Create map
 cave_map = np.loadtxt(params['maps'][1])
@@ -120,7 +127,8 @@ if SAVE_SIM_GIF:
 
 # Simulate over a certain number of time steps
 for sim_step in range(0, params['time_steps']):
-    print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
+    if sim_step % 100 == 0:
+        print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
     new_locs = []
 
     # Each simulation agent must be updated, all locations are only updated after all updates (parallel updates)
@@ -141,7 +149,6 @@ for sim_step in range(0, params['time_steps']):
         sim_fitness[i] = fit
 
     # Update agent locations
-    #print(agent_locations)
     agent_locations = list(new_locs)
 
     ## UPDATE VISUALIZATION ##
@@ -169,8 +176,6 @@ for sim_step in range(0, params['time_steps']):
 
 # Close figure
 plt.close()  
-
-print(sim_fitness)
 
 if SAVE_SIM_GIF:
     frames = np.stack([iio.imread(fig) for fig in gif_figs], axis=0)

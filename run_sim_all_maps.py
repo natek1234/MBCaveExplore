@@ -6,26 +6,21 @@ import matplotlib.pyplot as plt
 import copy
 import pickle
 import imageio
+import sys
 
 VISUALIZE_GRAD_MAP = False
 VISUALIZE = False # Visualization option to be implemented
 PLOT_OUTPUT = True # Plot and save the output fitness and statistics
-OUTPUT_PATH = './stats/Archive/all_maps_8_inputs_add_distance/5_gates_100_iter/'
-
 SAVE_STATS = True # Saves line of descent, avg fitness, and fitness to file
 
-MUT_PROB = 0.01 # Mutation probability
-
 # Perform mutation on a brain
-def mutate(brain):
+def mutate(brain, mut_prob):
     for gate in range(0,brain.num_gates):
         # Mutate the gate with probability MUT_PROB - Re-create the gate randomly
-        if np.random.rand() < MUT_PROB:
+        if np.random.rand() < mut_prob:
             # Randomly initialize gates to probabilistic, deterministic, or special
             gate_type = np.random.choice(['probabilistic','deterministic']) # 0 is probabilistic, 1 is deterministic, 2 is special (to be added later)
             brain.gates[gate] = Gates(gate_type, np.random.choice(brain.gate_types), brain.gate_ids[gate], brain.num_inputs+brain.num_hidden, brain.input_ids, brain.output_ids, brain.hidden_ids)
-            #print('MUTATION')
-            #exit()
    
     return True
 
@@ -47,12 +42,14 @@ def crossover(brain_1, brain_2):
 if __name__ == '__main__':
 
     ## Open Configuration File ##
-
-    stream = open("mb_config.yaml", 'r')
+    config_path = sys.argv[1]
+    stream = open(config_path, 'r')
     params = yaml.safe_load(stream) # all config parameters saved in params
 
     for key, value in params.items():
         print (key + " : " + str(value))
+
+    mut_prob = params['mut_prob'] # Mutation probability
 
     ## SETUP SIM ENVIRONMENT ##
 
@@ -163,7 +160,8 @@ if __name__ == '__main__':
 
                 # Simulate over a certain number of time steps
                 for sim_step in range(0, params['time_steps']):
-                    print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
+                    #if sim_step % 100 == 0:
+                        #print('\rSimulation step: {}/{}'.format(sim_step, params['time_steps']), end='', flush=True)
                     new_locs = []
 
                     # Each simulation agent must be updated, all locations are only updated after all updates (parallel updates)
@@ -240,7 +238,7 @@ if __name__ == '__main__':
             new_agent = crossover(agents[idx[0]], agents[idx[1]])
 
             # Mutation: mutate the new agent
-            mutate(new_agent)
+            mutate(new_agent, mut_prob)
 
             # Add the new agent to the pool
             new_agents = new_agents + [new_agent]
@@ -264,24 +262,24 @@ if __name__ == '__main__':
         plt.title('Agent Fitness vs. Evolution Step')
 
         # Save the output
-        plt.savefig(OUTPUT_PATH + 'avg_fitness.png')
+        plt.savefig(params['out_path'] + 'avg_fitness.png')
 
         # Display the plot
         #plt.show()
 
     if SAVE_STATS:
-        with open(OUTPUT_PATH + 'parents_LOD.pkl', 'wb') as f:
+        with open(params['out_path'] + 'parents_LOD.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_parents, f)
 
-        with open(OUTPUT_PATH + 'avg_fitness.pkl', 'wb') as f:
+        with open(params['out_path'] + 'avg_fitness.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_fitness_avg, f)
 
-        with open(OUTPUT_PATH + 'fitness.pkl', 'wb') as f:
+        with open(params['out_path'] + 'fitness.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(all_fitness, f)
 
-        with open(OUTPUT_PATH + 'sim_params.pkl', 'wb') as f:
+        with open(params['out_path'] + 'sim_params.pkl', 'wb') as f:
             # Use the pickle module to dump the list of objects into the file
             pickle.dump(params, f)

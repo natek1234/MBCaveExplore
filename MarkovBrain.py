@@ -2,7 +2,6 @@ import numpy as np
 from Gates import Gates
 import math
 
-CAVES = [[62,458],[232,318],[193,271],[451,333],[422,47],[429,382]] # x, y
 class MarkovBrain:
     def __init__(self, num_inputs, num_outputs, num_hidden, num_gates, gates, all_gates = True):
 
@@ -49,7 +48,7 @@ class MarkovBrain:
 
     # NOTE: This particular brain update is specific to this simulation. 
     # Input 1-4: Local temperature gradient (up, down, left, right)
-    # Input 5: Distance to closest agent
+    # Input 5-8: Distance to closest agent
 
     # Output 1-4: up, down, left, and right movement (in that order)
     def brain_update(self, cave_map, cave_map_grad, other_agents, this_agent, time_of_day = 'DAY', first_iter = False, last_iter = False):
@@ -60,9 +59,6 @@ class MarkovBrain:
         # IDEA: local average of gradient in x and y direction gives some directional information of where the gradient is leading
 
         y, x = this_agent # extract coordinates
-        #y,x = (280,170) # for testing (negative y)
-        #y,x = (310,170) # for testing (positive y)
-        #y,x = (300,165) # for testing (negative x and positive y)
 
         # Determine the size of the array
         height, width = cave_map.shape
@@ -199,13 +195,7 @@ class MarkovBrain:
                 self.fitness = -np.inf
             else:
                 self.fitness = self.fitness + np.mean(closest_agent) # promote being far from other agents
-                
-            # Distance to closest cave 
-            #closest_agent = [math.dist(cave, this_agent) for cave in CAVES]
-            
-            #if min(closest_agent) >= 5: # Only activate penalty if further than 5 pixels (10m)
-            #    self.fitness = self.fitness - 10*min(closest_agent)
-        
+                   
 
         return self.location, self.fitness # return the new position of the agent
     
