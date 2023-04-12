@@ -42,12 +42,13 @@ def crossover(brain_1, brain_2):
 if __name__ == '__main__':
 
     ## Open Configuration File ##
+    print('Opening configuration...', flush=True)
     config_path = sys.argv[1]
     stream = open(config_path, 'r')
     params = yaml.safe_load(stream) # all config parameters saved in params
 
     for key, value in params.items():
-        print (key + " : " + str(value))
+        print(key + " : " + str(value), flush=True)
 
     mut_prob = params['mut_prob'] # Mutation probability
 
@@ -107,8 +108,8 @@ if __name__ == '__main__':
     for evo_step in range(0, params['evolution_steps']):
 
 
-        print('\n\nEVOLUTION STEP: {}/{}'.format(evo_step, params['evolution_steps']))
-        print('---------------------------------------------------------------')
+        print('\n\nEVOLUTION STEP: {}/{}'.format(evo_step, params['evolution_steps']), flush=True)
+        print('---------------------------------------------------------------', flush=True)
         fitness = np.zeros(params['pool_size']) # initialize fitness pool for all agents
 
         # Loop over all the maps
@@ -120,8 +121,8 @@ if __name__ == '__main__':
             # This loop goes over every agent variation for this evolution step
             for agent_index, agent in enumerate(agents):
 
-                print(f'\n\nMB CANDIDATE: {agent_index}')
-                print('---------------------------------------------------------------')
+                #print(f'\n\nMB CANDIDATE: {agent_index}', flush=True)
+                #print('---------------------------------------------------------------', flush=True)
 
                 # Create simulation pool of agents
                 sim_agents = [] # stores copies of the simulation agent
@@ -210,7 +211,7 @@ if __name__ == '__main__':
 
         idx = np.argpartition(fitness, -2)[-2:] # get indices of top two elements
 
-        print(f'\n\nEnd of generation \nParent 1 fitness: {fitness[idx[0]]} \nParent 2 fitness: {fitness[idx[1]]}')
+        print(f'\n\nEnd of generation \nParent 1 fitness: {fitness[idx[0]]} \nParent 2 fitness: {fitness[idx[1]]}', flush=True)
 
         # Collect Data
         parent_1 = copy.deepcopy(agents[idx[0]])

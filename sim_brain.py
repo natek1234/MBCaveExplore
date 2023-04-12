@@ -70,10 +70,6 @@ for i in range(0, len(brains)):
         best_brain_fitness = brains[i][1].fitness
         best_brain = brains[i][1]
 
-# best_brain = brains[-1][1] # pick last brain
-print(best_brain_fitness)
-print(best_brain.fitness)
-
 # SIMULATE
 
 gif_figs = []

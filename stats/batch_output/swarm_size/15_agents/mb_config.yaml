@@ -1,0 +1,43 @@
+all_gates: true
+det_gate_types:
+- AND
+- OR
+- XOR
+- NAND
+- NOT
+- NOR
+- XNOR
+det_gates: false
+evolution_steps: 100
+gate_types:
+- AND
+- OR
+- XOR
+- NAND
+- NOT
+- NOR
+- XNOR
+maps:
+- /home/natek124/projects/def-gdeleute/natek124/MBCaveExplore/maps_6_caves/map_1_r10.txt
+- /home/natek124/projects/def-gdeleute/natek124/MBCaveExplore/maps_6_caves/map_2_r10.txt
+- /home/natek124/projects/def-gdeleute/natek124/MBCaveExplore/maps_6_caves/map_3_r10.txt
+mut_prob: 0.01
+num_gates: 10
+num_hidden: 4
+num_inputs: 8
+num_outputs: 4
+out_path: /home/natek124/projects/def-gdeleute/natek124/MBCaveExplore/stats/batch_output/swarm_size/15_agents/
+pool_size: 20
+prob_gate_types:
+- AND
+- OR
+- XOR
+- NAND
+- NOT
+- NOR
+- XNOR
+prob_gates: false
+special_gate_types: []
+special_gates: false
+swarm_size: 15
+time_steps: 500
